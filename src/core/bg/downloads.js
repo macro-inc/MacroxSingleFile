@@ -377,16 +377,16 @@ async function downloadCompressedContent(message, tab) {
 			} else {
 				if (message.backgroundSave) {
 					message.url = blobURI;
-					response = await downloadPage(message, {
-						confirmFilename: message.confirmFilename,
-						incognito: tab.incognito,
-						filenameConflictAction: message.filenameConflictAction,
-						filenameReplacementCharacter: message.filenameReplacementCharacter,
-						bookmarkId: message.bookmarkId,
-						replaceBookmarkURL: message.replaceBookmarkURL,
-						includeInfobar: message.includeInfobar,
-						openInfobar: message.openInfobar
-					});
+					// response = await downloadPage(message, {
+					// 	confirmFilename: message.confirmFilename,
+					// 	incognito: tab.incognito,
+					// 	filenameConflictAction: message.filenameConflictAction,
+					// 	filenameReplacementCharacter: message.filenameReplacementCharacter,
+					// 	bookmarkId: message.bookmarkId,
+					// 	replaceBookmarkURL: message.replaceBookmarkURL,
+					// 	includeInfobar: message.includeInfobar,
+					// 	openInfobar: message.openInfobar
+					// });
 				} else {
 					const blob = await (await fetch(blobURI)).blob();
 					await downloadPageForeground(message.taskId, message.filename, blob, message.mimeType, tabId);

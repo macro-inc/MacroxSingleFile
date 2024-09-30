@@ -128,6 +128,7 @@ async function downloadPage(pageData, options) {
 			const blobURL = URL.createObjectURL(blob);
 			message.filename = pageData.filename;
 			message.blobURL = blobURL;
+			console.log('downloadPage');
 			const result = await browser.runtime.sendMessage(message);
 			URL.revokeObjectURL(blobURL);
 			if (result.error) {
@@ -165,21 +166,35 @@ async function downloadPage(pageData, options) {
 				message.filename = pageData.filename = filename;
 				const blobURL = URL.createObjectURL(new Blob([pageData.content], { type: pageData.mimeType }));
 				message.blobURL = blobURL;
-				const result = await browser.runtime.sendMessage(message);
-				URL.revokeObjectURL(blobURL);
-				if (result.error) {
-					message.blobURL = null;
-					for (let blockIndex = 0; blockIndex * MAX_CONTENT_SIZE < pageData.content.length; blockIndex++) {
-						message.truncated = pageData.content.length > MAX_CONTENT_SIZE;
-						if (message.truncated) {
-							message.finished = (blockIndex + 1) * MAX_CONTENT_SIZE > pageData.content.length;
-							message.content = pageData.content.substring(blockIndex * MAX_CONTENT_SIZE, (blockIndex + 1) * MAX_CONTENT_SIZE);
-						} else {
-							message.content = pageData.content;
-						}
-						await browser.runtime.sendMessage(message);
+
+				chrome.runtime.sendMessage({
+					action: "sendHtml",
+					filename: filename,
+					content: pageData.content,
+				}, response => {
+					if (chrome.runtime.lastError) {
+						console.error("Error sending message:", chrome.runtime.lastError);
+					} else {
+						console.log("Message sent successfully:", response);
 					}
-				}
+				});
+
+				// TODO: logic below triggers download, which we don't want ...
+				// const result = await browser.runtime.sendMessage(message);
+				// URL.revokeObjectURL(blobURL);
+				// if (result.error) {
+				// 	message.blobURL = null;
+				// 	for (let blockIndex = 0; blockIndex * MAX_CONTENT_SIZE < pageData.content.length; blockIndex++) {
+				// 		message.truncated = pageData.content.length > MAX_CONTENT_SIZE;
+				// 		if (message.truncated) {
+				// 			message.finished = (blockIndex + 1) * MAX_CONTENT_SIZE > pageData.content.length;
+				// 			message.content = pageData.content.substring(blockIndex * MAX_CONTENT_SIZE, (blockIndex + 1) * MAX_CONTENT_SIZE);
+				// 		} else {
+				// 			message.content = pageData.content;
+				// 		}
+				// 		await browser.runtime.sendMessage(message);
+				// 	}
+				// }
 			} else {
 				browser.runtime.sendMessage({ method: "downloads.cancel" });
 				browser.runtime.sendMessage({ method: "ui.processCancelled" });
@@ -218,8 +233,9 @@ async function downloadPageForeground(pageData, options) {
 			}
 		}
 		if (filename) {
+			console.log('downloadPageForeground');
 			const link = document.createElement("a");
-			link.download = pageData.filename;
+			// link.download = pageData.filename;
 			link.href = URL.createObjectURL(new Blob([pageData.content], { type: pageData.mimeType }));
 			link.dispatchEvent(new MouseEvent("click"));
 			return new Promise(resolve => setTimeout(() => { URL.revokeObjectURL(link.href); resolve(); }, 1000));

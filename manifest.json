@@ -1,5 +1,5 @@
 {
-	"name": "SingleFile",
+	"name": "Macro x SingleFile",
 	"author": "Gildas Lormeau",
 	"homepage_url": "https://github.com/gildas-lormeau/SingleFile-MV3",
 	"icons": {
@@ -113,6 +113,7 @@
 		]
 	},
 	"permissions": [
+		"cookies",
 		"contextMenus",
 		"downloads",
 		"storage",

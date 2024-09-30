@@ -172,6 +172,7 @@ async function savePage(message) {
 				const pageData = await processPage(options);
 				if (pageData) {
 					await download.downloadPage(pageData, options);
+					console.log(pageData);
 				}
 			} catch (error) {
 				if (!processor.cancelled) {
